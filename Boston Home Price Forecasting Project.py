@@ -1,12 +1,28 @@
 # Boston house price data set
-from pandas import read_csv
-df = read_csv(r'C:\Users\ok\Desktop\Program\python\CSV dataset\BostonHousing.csv')
-print(f'Shape Dataset :{df.shape}')
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
 
+from numpy import mean, std, percentile
+from pandas import DataFrame, read_csv
+from sklearn.neighbors import LocalOutlierFactor
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression, Ridge, Lasso
+from sklearn.metrics import (
+    mean_absolute_error,
+    mean_squared_error,
+    root_mean_squared_error,
+    mean_absolute_percentage_error,
+    r2_score
+)
+
+df = pd.read_csv("BostonHousing.csv")
 # Check the database information
-print(f'info :\n{df.info()}')
-
-print(f'describe :\n{df.describe()}')
+df.head(3)
+df.columns.tolist()
+df.isnull().sum()
+df.describe()
 
 # Converting a data frame to an array
 data = df.values
@@ -14,8 +30,6 @@ X = data[:, :-1]
 y = data[:, -1]
 
 # Visualizing the relationship between attribute columns and the target column (house price)
-from pandas import DataFrame
-import matplotlib.pyplot as plt
 
 for k ,_ in DataFrame(X).items():
     plt.scatter(DataFrame(X)[k],y)
@@ -25,13 +39,11 @@ for k ,_ in DataFrame(X).items():
     plt.show()
 
 # Training-test data partitioning
-from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
 print(f'Shape X_train :{X_train.shape} Shape y_train :{y_train.shape}')
 
 # Removing outliers with the IQR method
-from numpy import percentile
 Q1 = percentile(X_train, 25, axis=0)
 Q3 = percentile(X_train, 75, axis=0)
 IQR = Q3 - Q1
@@ -45,8 +57,6 @@ y_trainq = y_train[mask]
 print(f'Shape X_trainq :{X_trainq.shape} Sahpe y_trainq :{y_trainq.shape}')
 
 # Outlier removal with the Three Sigma method
-from numpy import mean
-from numpy import std
 
 data_mean ,data_std = mean(X_train),std(X_train)
 cut_off = data_std * 3
@@ -60,7 +70,6 @@ y_train_ms = y_train[mask]
 print(f'Shape X_tarin_ms :{X_train_ms.shape} ,Shape y_train_ms{y_train_ms.shape}')
  
 # Removing outliers using the LOF method
-from sklearn.neighbors import LocalOutlierFactor
 lof = LocalOutlierFactor(n_neighbors=10)
 X_sel = lof.fit_predict(X_train)
 
@@ -75,15 +84,6 @@ shape_dict = {'q':[X_trainq ,y_trainq],
               'lof':[X_train_lof,y_train_lof]}
 # Making models
 
-from sklearn.linear_model import LinearRegression, Ridge, Lasso
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import (
-    mean_absolute_error,
-    mean_squared_error,
-    root_mean_squared_error,
-    mean_absolute_percentage_error,
-    r2_score
-)
 
 def make_models(shape_dict, X_test, y_test):
     results = {}
@@ -126,7 +126,6 @@ def make_models(shape_dict, X_test, y_test):
 results, trained_models, y_preds = make_models(shape_dict, X_test, y_test)
 
 # Visualizing the performance and relationship between features and the target column (house price)
-import seaborn as sns
 model, split = 'Ridge', list(results['Ridge'].keys())[0]
 y_pred = y_preds[(model, split)]
 y_true = y_test  
@@ -145,6 +144,3 @@ plt.xlabel('Residual'); plt.title(f'{model} Residual Distribution')
 
 plt.tight_layout()
 plt.show()
-
-# Developer :arshia-khodadadi
-# email :arshiakhodadad.ir@gmail.com
