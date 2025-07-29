@@ -37,13 +37,16 @@ X = df.drop('medv', axis=1).values
 y = df['medv'].values
 
 # Visualizing the relationship between attribute columns and the target column (house price)
-# ----------------------------------------ISSUE------
-for k ,_ in DataFrame(X).items():
-    plt.scatter(DataFrame(X)[k],y)
-    plt.xlabel(k)
-    plt.ylabel('Target')
-    plt.title(f'Diagram illustration :{k}')
+feat_loop = df.drop("medv", axis=1)
+target_loop = df["medv"]
+
+for col in feat_loop.columns:
+    plt.scatter(feat_loop[col], target_loop, alpha=0.6)
+    plt.xlabel(col)
+    plt.ylabel("Target (medv)")
+    plt.title(f"Scatter plot: {col} vs medv")
     plt.show()
+
 
 # correlatrion between features to indicate important features
 plt.figure(figsize=(14, 12))
