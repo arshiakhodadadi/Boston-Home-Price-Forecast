@@ -5,7 +5,7 @@ import numpy as np
 
 from scipy.stats import skew
 from sklearn.neighbors import LocalOutlierFactor
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split, GridSearchCV, RandomizedSearchCV
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import (
     mean_absolute_error,
@@ -44,28 +44,37 @@ mask = X_sel != -1
 X_train_lof, y_train_lof = X_train[mask], y_train[mask]
 
 # Define parameter grid for RandomForest
+# param_grid = {
+#     'n_estimators': [100, 600],
+#     'max_depth': [None, 10, 20, 30, 40, 50, 60],
+#     'min_samples_split': [2, 12],
+#     'min_samples_leaf': [1, 6]
+# }
+
 param_grid = {
-    'n_estimators': [100, 500],
-    'max_depth': [None, 10, 20, 30, 40, 50],
-    'min_samples_split': [2, 10],
-    'min_samples_leaf': [1, 5]
+    'n_estimators': [100, 200, 300, 400, 500, 600],
+    'max_depth': [10, 20, 30, 40, 50, 60, None],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': [1, 2, 4, 6],
+    'max_features': ['auto', 'sqrt', 'log2']
 }
 
 # Grid search with cross-validation
 rf = RandomForestRegressor(random_state=42)
-grid_search = GridSearchCV(
+random_search = RandomizedSearchCV(
     estimator=rf,
-    param_grid=param_grid,
+    param_distributions=param_grid,
+    n_iter=50,  # تعداد ترکیب‌های تصادفی برای جستجو
     cv=5,
     scoring='r2',
     n_jobs=-1,
-    verbose=2
+    verbose=2,
+    random_state=42
 )
-grid_search.fit(X_train_lof, y_train_lof)
+random_search.fit(X_train_lof, y_train_lof)
 
 # Best model
-best_rf = grid_search.best_estimator_
-
+best_rf = random_search.best_estimator_
 y_pred = best_rf.predict(X_test)
 
 mae = mean_absolute_error(y_test, y_pred)
@@ -74,8 +83,8 @@ mape = mean_absolute_percentage_error(y_test, y_pred)
 r2 = r2_score(y_test, y_pred)
 
 print(f"""
-Best Parameters: {grid_search.best_params_}
-Best Cross-Validated R2 Score: {grid_search.best_score_:.4f}
+Best Parameters: {random_search.best_params_}
+Best Cross-Validated R2 Score: {random_search.best_score_:.4f}
 
 Test Set Performance:
 MAE  = {mae:.4f}
@@ -83,7 +92,6 @@ RMSE = {rmse:.4f}
 MAPE = {mape:.4f}
 R2   = {r2:.4f}
 """)
-
 
 # Plot prediction vs true values
 plt.figure(figsize=(12, 5))
