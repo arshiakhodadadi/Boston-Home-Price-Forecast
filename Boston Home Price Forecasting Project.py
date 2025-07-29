@@ -30,12 +30,14 @@ df.describe()
 df["tax_per_rad"] = np.log1p(df["tax"] / df["rad"])
 df.drop(["tax", "rad"], axis=1,inplace=True)
 
+df['tax_per_rad'].unique()
+
 # Converting a data frame to an array
-data = df.values
-X = data[:, :-1]
-y = data[:, -1]
+X = df.drop('medv', axis=1).values
+y = df['medv'].values
 
 # Visualizing the relationship between attribute columns and the target column (house price)
+# ----------------------------------------ISSUE------
 for k ,_ in DataFrame(X).items():
     plt.scatter(DataFrame(X)[k],y)
     plt.xlabel(k)
