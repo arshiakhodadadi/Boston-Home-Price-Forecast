@@ -59,18 +59,15 @@ if df['chas'].nunique() <= 2:
 
 print(skewed_features)
 
-# رسم توزیع قبل از log1p
 plt.figure(figsize=(15, len(skewed_features) * 3))
 for i, feature in enumerate(skewed_features.index):
     plt.subplot(len(skewed_features), 2, 2 * i + 1)
     sns.histplot(df[feature], kde=True, color="skyblue")
     plt.title(f"Before log1p: {feature}")
 
-# اعمال log1p روی فیچرهای چوله
 for feature in skewed_features.index:
     df[feature] = np.log1p(df[feature])
 
-# رسم توزیع بعد از log1p
 for i, feature in enumerate(skewed_features.index):
     plt.subplot(len(skewed_features), 2, 2 * i + 2)
     sns.histplot(df[feature], kde=True, color="salmon")
