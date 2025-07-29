@@ -3,10 +3,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-from scipy.stats import skew
 
 from numpy import mean, std, percentile
-from pandas import DataFrame
+from scipy.stats import skew
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
@@ -80,7 +79,7 @@ for i, feature in enumerate(skewed_features.index):
 
 
 # Training-test data partitioning
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 print(f'Shape X_train :{X_train.shape} Shape y_train :{y_train.shape}')
 
