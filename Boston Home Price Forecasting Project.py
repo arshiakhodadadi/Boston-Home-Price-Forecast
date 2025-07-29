@@ -2,9 +2,11 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
+from scipy.stats import skew
 
 from numpy import mean, std, percentile
-from pandas import DataFrame, read_csv
+from pandas import DataFrame
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
@@ -24,19 +26,30 @@ df.columns.tolist()
 df.isnull().sum()
 df.describe()
 
+# feature enginnering to fix tax-rad in heatmap(check heatmap below)
+df["tax_per_rad"] = np.log1p(df["tax"] / df["rad"])
+df.drop(["tax", "rad"], axis=1,inplace=True)
+
 # Converting a data frame to an array
 data = df.values
 X = data[:, :-1]
 y = data[:, -1]
 
 # Visualizing the relationship between attribute columns and the target column (house price)
-
 for k ,_ in DataFrame(X).items():
     plt.scatter(DataFrame(X)[k],y)
     plt.xlabel(k)
     plt.ylabel('Target')
     plt.title(f'Diagram illustration :{k}')
     plt.show()
+
+# correlatrion between features to indicate important features
+plt.figure(figsize=(14, 12))
+sns.heatmap(df.corr(), annot=True, cmap="coolwarm", linewidths=0.8)
+plt.title("correlation features")
+plt.show()
+
+
 
 # Training-test data partitioning
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
@@ -57,7 +70,6 @@ y_trainq = y_train[mask]
 print(f'Shape X_trainq :{X_trainq.shape} Sahpe y_trainq :{y_trainq.shape}')
 
 # Outlier removal with the Three Sigma method
-
 data_mean ,data_std = mean(X_train),std(X_train)
 cut_off = data_std * 3
 
